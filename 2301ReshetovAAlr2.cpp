@@ -8,7 +8,7 @@
 #include <time.h>
 #include <iomanip>
 #include <chrono>
-#define ARR_SIZE 100
+#define LEN 100
 using namespace std;
 using namespace chrono;
 
@@ -19,7 +19,7 @@ void swap(int& a, int& b) {
 };
 
 void printArray(int arr[]) { //вывод массива
-    for (int i = 0; i < ARR_SIZE; i++) {
+    for (int i = 0; i < LEN; i++) {
         cout << arr[i] << " ";
     }
     cout << endl;
@@ -27,7 +27,7 @@ void printArray(int arr[]) { //вывод массива
 
 void arrSorted(int arr[]) {//заполнение отсортированного массива
     int k = 0;
-    for (int i = 0; i < ARR_SIZE; i++) {
+    for (int i = 0; i < LEN; i++) {
         arr[i] = k;
         k += 1;
     }
@@ -35,26 +35,26 @@ void arrSorted(int arr[]) {//заполнение отсортированног
 
 void arrPartSorted(int arr[]) {//заполнение частично отсортированного массива
     int k = 99;
-    for (int i = 0; i < ARR_SIZE / 2; i++) {
+    for (int i = 0; i < LEN / 2; i++) {
         arr[i] = i;
     }
-    for (int i = 50; i < ARR_SIZE; i++) {
+    for (int i = 50; i < LEN; i++) {
         arr[i] = k;
         k -= 1;
     }
 }
 
 void arrBackSorted(int arr[]) {//заполнение обратно отсортированного массива
-    int k = ARR_SIZE;
-    for (int i = 0; i < ARR_SIZE; i++) {
+    int k = LEN;
+    for (int i = 0; i < LEN; i++) {
         arr[i] = k;
         k -= 1;
     }
 }
 
 void arrRandomSorted(int arr[]) {
-    for (int i = 0; i < ARR_SIZE; i++)
-        arr[i] = rand() % (ARR_SIZE * 10);
+    for (int i = 0; i < LEN; i++)
+        arr[i] = rand() % (LEN * 10);
 }
 
 void SelectionSort(int arr[], int arr_len) { //сортировка выбором
@@ -122,7 +122,7 @@ void merge(int arr[], int start, int end, int mid) {
     delete[] array;     //удаляем массив
     array = nullptr;
 
-} 
+}
 
 void MergeSort(int arr[], int left, int right)
 {
@@ -140,7 +140,7 @@ void timmerge(int* array, int left, int right) {
     int mid = left + (right - left) / 2;
     int j = mid + 1;
     int k = 0;
-    int* sortedArr = new int[ARR_SIZE];
+    int* sortedArr = new int[LEN];
     while ((i <= mid) && (j <= right)) {
         if (array[i] <= array[j]) {
             sortedArr[k] = array[i];
@@ -175,7 +175,6 @@ int getMinRun(int size) {
     }
     return size + n;
 }
-
 
 void TimSort(int* array, int arr_len) {
     int minRun = getMinRun(arr_len);
@@ -379,7 +378,7 @@ void IntroSort(int* array, int arr_len) {//функция интросорт
 int main()
 {
     setlocale(LC_ALL, "Rus");
-    int* arr = new int[ARR_SIZE]; // указатель для выделения памяти под массив
+    int* arr = new int[LEN]; // указатель для выделения памяти под массив
     int massChoice; //выбор пользователем типа массива
     cout << "----------------МЕНЮ----------------" << endl;
     cout << "Выберите тип массива: " << endl;
@@ -436,61 +435,57 @@ int main()
     cout << "------------------------------------" << endl;
     switch (usersChoice) { //выбор пользователем типа сортировки
     case 1:
-        SelectionSort(arr, ARR_SIZE);
+        SelectionSort(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 2:
-        InsertSort(arr, 0, ARR_SIZE - 1);
+        InsertSort(arr, 0, LEN - 1);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 3:
-        BubbleSort(arr, ARR_SIZE);
+        BubbleSort(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 4:
-        MergeSort(arr, 0, ARR_SIZE - 1);
+        MergeSort(arr, 0, LEN - 1);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 5:
-        QuickSort(arr, 0, ARR_SIZE - 1);
+        QuickSort(arr, 0, LEN - 1);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 6:
-        ShellSortDel(arr, ARR_SIZE);
+        ShellSortDel(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 7:
-        ShellSortTsuira(arr, ARR_SIZE);
+        ShellSortTsuira(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 8:
-        ShellSortPow(arr, ARR_SIZE);
+        ShellSortPow(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 9:
-        HeapSort(arr, ARR_SIZE);
+        HeapSort(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 10:
-        TimSort(arr, ARR_SIZE);
+        TimSort(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 11:
-        //auto t1 = high_resolution_clock::now();
-        IntroSort(arr, ARR_SIZE);
-        //auto t2 = high_resolution_clock::now();
-        //auto ms_int = duration_cast<microseconds>(t2 - t1);
-        //cout << "Время сортировки в микросекундах: " << ms_int.count() << endl;
+        IntroSort(arr, LEN);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
