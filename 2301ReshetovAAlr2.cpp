@@ -9,14 +9,19 @@
 #include <iomanip>
 #include <chrono>
 #define ARR_SIZE 100
-#define minrun 32
 using namespace std;
 using namespace chrono;
+
+void swap(int& a, int& b) {
+    int tmp = a;
+    a = b;
+    b = tmp;
+};
 
 void printArray(int arr[]) { //вывод массива
     for (int i = 0; i < ARR_SIZE; i++) {
         cout << arr[i] << " ";
-    } 
+    }
     cout << endl;
 }
 
@@ -49,31 +54,29 @@ void arrBackSorted(int arr[]) {//заполнение обратно отсор�
 
 void arrRandomSorted(int arr[]) {
     for (int i = 0; i < ARR_SIZE; i++)
-        arr[i] = rand() % (ARR_SIZE);
+        arr[i] = rand() % (ARR_SIZE * 10);
 }
 
 void SelectionSort(int arr[], int arr_len) { //сортировка выбором
-    int count, key;//count - сохраняет значение элемента, key - номер максимального элемента 
+    int count, min;//count - сохраняет значение элемента, key - индекс минимального элемента 
     for (int i = 0; i < arr_len - 1; i++)
     {
-        count = arr[i]; 
-        key = i;
+        count = arr[i];
+        min = i;
         for (int j = i + 1; j < arr_len; j++)
-            if (arr[j] < arr[key]) key = j;
-        if (key != i)
+            if (arr[j] < arr[min]) min = j;
+        if (min != i)
         {
-            arr[i] = arr[key];
-            arr[key] = count;
+            arr[i] = arr[min];
+            arr[min] = count;
         }
     }
 }
 
 void InsertSort(int* array, int start, int end) {
-    int minElem;
-    int j;
     for (int i = start + 1; i < end + 1; i++) {
-        minElem = array[i];
-        j = i - 1;
+        int minElem = array[i];
+        int j = i - 1;
         while (j >= 0 && array[j] > minElem) {
             array[j + 1] = array[j];
             j = j - 1;
@@ -83,68 +86,113 @@ void InsertSort(int* array, int start, int end) {
 }
 
 void BubbleSort(int arr[], int arr_len) { //сортировка пузырьком
-    int count = 0; //переменная для временного хранения значения
-    for (int i = 0; i < arr_len - 1; i++) {
+    bool flag = true;
+    for (int i = 0; i < arr_len - 1 && flag; i++) {
+        flag = false;
         for (int j = arr_len - 1; j > i; j--) {
             if (arr[j] < arr[j - 1]) {
-                count = arr[j - 1];
-                arr[j - 1] = arr[j];
-                arr[j] = count;
+                swap(arr[j - 1], arr[j]);
+                flag = true;
             }
         }
     }
 }
 
-void merge(int* leftArray, int* rightArray, int* arr, int size) {
-    int leftSize = size / 2;
-    int rightSize = size - leftSize;
+void merge(int arr[], int start, int end, int mid) {
+    int lengthArray = end - start + 1;  //длина вспомогательного массива
+    int right = mid + 1;    //индекс первого эл. правой стороны
+    int left = start;     //индекс первого эл. левой стороны
+    int indexArray = 0;   //индекс вспомогательного массива
+    int* array = new int[lengthArray];
 
-    int i = 0, l = 0, r = 0;
-    while (l < leftSize && r < rightSize) {
-        if (leftArray[l] < rightArray[r]) {
-            arr[i] = leftArray[l];
+
+    while ((left <= mid) and (right <= end)) {   //идем по сторонам
+        if (arr[left] < arr[right])     //меньший записываем в спомогательный
+            array[indexArray++] = arr[left++];
+        else array[indexArray++] = arr[right++];
+
+    }
+    while (left <= mid)     //записываем оставшийся хвостик массива
+        array[indexArray++] = arr[left++];
+    while (right <= end)
+        array[indexArray++] = arr[right++];
+    for (int i = start; i <= end; i++)      //переписываем массив
+        arr[i] = array[i - start];
+
+    delete[] array;     //удаляем массив
+    array = nullptr;
+
+} 
+
+void MergeSort(int arr[], int left, int right)
+{
+    if (left >= right) {    //пока не останется 1 элемент
+        return;
+    }
+    int mid = left + (right - left) / 2; //находим середину
+    MergeSort(arr, left, mid);     //разбиваем левую часть
+    MergeSort(arr, mid + 1, right);//разбиваем правую часть
+    merge(arr, left, right, mid);  //объединяем
+}
+
+void timmerge(int* array, int left, int right) {
+    int i = left;
+    int mid = left + (right - left) / 2;
+    int j = mid + 1;
+    int k = 0;
+    int* sortedArr = new int[ARR_SIZE];
+    while ((i <= mid) && (j <= right)) {
+        if (array[i] <= array[j]) {
+            sortedArr[k] = array[i];
             i++;
-            l++;
         }
         else {
-            arr[i] = rightArray[r];
-            i++;
-            r++;
+            sortedArr[k] = array[j];
+            j++;
         }
+        k++;
     }
-    while (l < leftSize) {
-        arr[i] = leftArray[l];
+    while (i <= mid) {
+        sortedArr[k] = array[i];
         i++;
-        l++;
+        k++;
     }
-    while (r < rightSize) {
-        arr[i] = rightArray[r];
-        i++;
-        r++;
+    while (j <= right) {
+        sortedArr[k] = array[j];
+        j++;
+        k++;
+    }
+    for (int x = 0; x < k; x++) {
+        array[left + x] = sortedArr[x];
     }
 }
 
-void MergeSort(int* arr, int size) {//сортировка слиянием
-    if (size <= 1) return;
-    int middle = size / 2;
-    int* leftArray = new int[middle];
-    int midRight = size - middle;
-    int* rightArray = new int[midRight];
-
-    int j = 0;
-    int i = 0;
-    for (; i < size; i++) {
-        if (i < middle) {
-            leftArray[i] = arr[i];
-        }
-        else {
-            rightArray[j] = arr[i];
-            j++;
-        }
+int getMinRun(int size) {
+    int n = 0;
+    while (size >= 32) {
+        n |= size & 1;
+        size >>= 1;
     }
-    MergeSort(leftArray, i - j);
-    MergeSort(rightArray, j);
-    merge(leftArray, rightArray, arr, size);
+    return size + n;
+}
+
+
+void TimSort(int* array, int arr_len) {
+    int minRun = getMinRun(arr_len);
+    for (int start = 0; start < arr_len; start += minRun) {
+        int end = min(start + minRun, arr_len - 1);
+        InsertSort(array, start, end);
+    }
+    int size = minRun;
+    while (size < arr_len) {
+        for (int left = 0; left < arr_len; left += 2 * size) {
+            int right = min(left + 2 * size - 1, arr_len - 1);
+            if (left < right) {
+                timmerge(array, left, right);
+            }
+        }
+        size *= 2;
+    }
 }
 
 void QuickSort(int* arr, int left, int right)
@@ -180,24 +228,85 @@ void QuickSort(int* arr, int left, int right)
         QuickSort(arr, pivot + 1, right);
 }
 
-void ShellSort(int arr[], int arr_len){//сортировка Шелла
+void ShellSortDel(int arr[], int arr_len) {//сортировка Шелла с шагом деления на 2
     for (int gap = arr_len / 2; gap > 0; gap /= 2)
     {
         for (int i = gap; i < arr_len; i += 1)
         {
             //сортировка подсписков, созданных с помощью gap 
             int key = arr[i];
-
             int j;
-            for (j = i; j >= gap && arr[j - gap] > key; j -= gap)
+            for (j = i; j >= gap && arr[j - gap] > key; j -= gap) {
                 arr[j] = arr[j - gap];
-
+            }
             arr[j] = key;
         }
     }
 }
 
-void heapify(int arr[], int n, int root){// функция heapify для нагромождения дерева
+void ShellSortTsuira(int arr[], int arr_len) {
+    int stepArr[9] = { 1750,701,301,132,57,23,10,4,1 };
+    for (int istep = 0; istep < 9; istep++)//перебор всех шагов
+    {
+        int step = stepArr[istep];
+        if (step < arr_len / 2 + 1)
+        {
+
+            for (int i = step; i < arr_len; i += 1)//перебор всех наборов с данным шагом
+            {
+                int key = arr[i];
+                int j;
+                for (j = i; j >= step && arr[j - step] > key; j -= step) {//проверка эллементов в наборе по алгоритму вставки
+                    arr[j] = arr[j - step];
+                }
+
+                arr[j] = key;
+            }
+        }
+    }
+}
+
+void ShellSortPow(int arr[], int arr_len)
+{
+    int firstStep = arr_len;
+
+    for (int i = 8 * sizeof(int); i >= 0; i--)
+    {
+        int powN = pow(2, i);
+        if ((arr_len & powN) != 0)
+        {
+            firstStep = powN;
+            break;
+        }
+    }
+
+    for (int step = firstStep; step > 1; step = (step + 1) / 2)//перебор всех шагов
+    {
+
+        for (int i = step; i < arr_len; i += 1)//перебор всех наборов с данным шагом
+        {
+            int temp = arr[i];
+            int j;
+            for (j = i; j >= step && arr[j - step] > temp; j -= step) {//проверка эллементов в наборе по алгоритму вставки
+                arr[j] = arr[j - step];
+            }
+
+            arr[j] = temp;
+        }
+    }
+    for (int i = 1; i < arr_len; i += 1)//перебор всех наборов с данным шагом
+    {
+        int temp = arr[i];
+        int j;
+        for (j = i; j >= 1 && arr[j - 1] > temp; j -= 1) {//проверка эллементов в наборе по алгоритму вставки
+            arr[j] = arr[j - 1];
+        }
+
+        arr[j] = temp;
+    }
+}
+
+void heapify(int arr[], int n, int root) {// функция heapify для нагромождения дерева
 
     int largest = root; // корень - самый большой элемент
     int l = 2 * root + 1; // слева = 2*корень + 1
@@ -222,7 +331,7 @@ void heapify(int arr[], int n, int root){// функция heapify для наг
     }
 }
 
-void HeapSort(int arr[], int arr_len){//сортировка пирамидальная
+void HeapSort(int arr[], int arr_len) {//сортировка пирамидальная
     // создать кучу
     for (int i = arr_len / 2 - 1; i >= 0; i--)
         heapify(arr, arr_len, i);
@@ -238,64 +347,8 @@ void HeapSort(int arr[], int arr_len){//сортировка пирамидал�
     }
 }
 
-int minRun(int arr_len) {
-    int r = 0;
-    while (arr_len >= minrun) {
-        r |= arr_len & 1;
-        arr_len >>= 1;
-    }
-    return arr_len + r;
-}
-
-void timMerge(int *arr, int start, int end, int mid) {
-    int lengthArray = end - start + 1;  //длина вспомогательного массива
-    int right = mid + 1;    //индекс первого эл. правой стороны
-    int left = start;     //индекс первого эл. левой стороны
-    int indexArray = 0;   //индекс вспомогательного массива
-    int* array = new int[lengthArray];
-
-
-    while ((left <= mid) and (right <= end)) {   //идем по сторонам
-        if (arr[left] < arr[right])     //меньший записываем в спомогательный
-            array[indexArray++] = arr[left++];
-        else array[indexArray++] = arr[right++];
-
-    }
-    while (left <= mid)     //записываем оставшийся хвостик массива
-        array[indexArray++] = arr[left++];
-    while (right <= end)
-        array[indexArray++] = arr[right++];
-    for (int i = start; i <= end; i++)      //переписываем массив
-        arr[i] = array[i - start];
-
-    delete[] array;     //удаляем массив
-    array = nullptr;
-
-}
-
-void TimSort(int *arr, int length) {//функция тимсорт
-
-    int run = minRun(length);
-
-    for (int left = 0; left < length; left += run) {
-        int right = min(left + run - 1, length - 1);
-        InsertSort(arr, left, right);
-    }
-    int size = run;
-    while (size < length) {
-        for (int left = 0; left < length; left += 2 * size) {
-            int middle = min(length - 1, left + size - 1);
-            int right = min(left + 2 * size - 1, length - 1);
-            if (middle < right) {
-                timMerge(arr, left, right, middle);
-            }
-        }
-        size *= 2;
-    }
-}
-
 int partition(int* arr, int start, int end) {
-    int pivot = arr[end];
+    int pivot = arr[start] + arr[end] + arr[(end - start) / 2] - max(arr[start], arr[end], arr[(end - start) / 2]) - min(arr[start], arr[end], arr[(end - start) / 2]);
 
     int index = start - 1;
     for (int j = start; j <= end - 1; j++) {
@@ -310,16 +363,16 @@ int partition(int* arr, int start, int end) {
     return index;
 }
 
-void IntroSort(int* array) {//функция интросорт
-    int partSize = partition(array, 0, ARR_SIZE - 1);
+void IntroSort(int* array, int arr_len) {//функция интросорт
+    int partSize = partition(array, 0, arr_len - 1);
     if (partSize < 16) {
-        InsertSort(array, 0, ARR_SIZE - 1);
+        InsertSort(array, 0, arr_len - 1);
     }
-    else if (partSize > (2 * log(ARR_SIZE))) {
-        HeapSort(array, ARR_SIZE);
+    else if (partSize > (2 * log(arr_len))) {
+        HeapSort(array, arr_len);
     }
     else {
-        QuickSort(array, 0, ARR_SIZE - 1);
+        QuickSort(array, 0, arr_len - 1);
     }
 }
 
@@ -371,10 +424,12 @@ int main()
     cout << "3. Сортировка пузырьком" << endl;
     cout << "4. Сортировка слиянием" << endl;
     cout << "5. Быстрая сортировка" << endl;
-    cout << "6. Сортировка Шелла" << endl;
-    cout << "7. Пирамидальная сортировка" << endl;
-    cout << "8. TimSort" << endl;
-    cout << "9. IntroSort" << endl;
+    cout << "6. Сортировка Шелла с шагом деления на 2" << endl;
+    cout << "7. Сортировка Шелла с последовательностью Марцина Цуира" << endl;
+    cout << "8. Сортировка Шелла с шагом 2^i - 1" << endl;
+    cout << "9. Пирамидальная сортировка" << endl;
+    cout << "10. TimSort" << endl;
+    cout << "11. IntroSort" << endl;
     cout << "------------------------------------" << endl;
     cout << "Ваш выбор: ";
     cin >> usersChoice;
@@ -396,7 +451,7 @@ int main()
         printArray(arr);
         break;
     case 4:
-        MergeSort(arr, ARR_SIZE);
+        MergeSort(arr, 0, ARR_SIZE - 1);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
@@ -406,29 +461,39 @@ int main()
         printArray(arr);
         break;
     case 6:
-        ShellSort(arr, ARR_SIZE);
+        ShellSortDel(arr, ARR_SIZE);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 7:
-        HeapSort(arr, ARR_SIZE);
+        ShellSortTsuira(arr, ARR_SIZE);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 8:
-        TimSort(arr, ARR_SIZE);
+        ShellSortPow(arr, ARR_SIZE);
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     case 9:
-        auto t1 = high_resolution_clock::now();
-        IntroSort(arr);
-        auto t2 = high_resolution_clock::now();
-        auto ms_int = duration_cast<microseconds>(t2 - t1);
-        cout << "Время сортировки в микросекундах: " << ms_int.count() << endl;
+        HeapSort(arr, ARR_SIZE);
+        cout << "Массив после сортировки: " << endl;
+        printArray(arr);
+        break;
+    case 10:
+        TimSort(arr, ARR_SIZE);
+        cout << "Массив после сортировки: " << endl;
+        printArray(arr);
+        break;
+    case 11:
+        //auto t1 = high_resolution_clock::now();
+        IntroSort(arr, ARR_SIZE);
+        //auto t2 = high_resolution_clock::now();
+        //auto ms_int = duration_cast<microseconds>(t2 - t1);
+        //cout << "Время сортировки в микросекундах: " << ms_int.count() << endl;
         cout << "Массив после сортировки: " << endl;
         printArray(arr);
         break;
     }
     return 0;
-    }
+}
