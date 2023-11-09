@@ -193,13 +193,15 @@ void TimSort(int* array, int arr_len) {
         size *= 2;
     }
 }
-
-void QuickSort(int* arr, int left, int right)
+/*
+void QuickSort(int* arr, int left, int right)//быстрая сортировка первый вариант 
 {
+    int mid;
     int pivot; // разрешающий элемент
     int l_hold = left; //левая граница
     int r_hold = right; // правая граница
-    pivot = arr[left];
+    mid = arr[(l_hold + r_hold) / 2];
+    pivot = mid;
     while (left < right) // пока границы не сомкнутся
     {
         while ((arr[right] >= pivot) && (left < right))
@@ -226,6 +228,29 @@ void QuickSort(int* arr, int left, int right)
     if (right > pivot)
         QuickSort(arr, pivot + 1, right);
 }
+*/
+void Quicksort(int* arr, int left, int right)//быстрая сортировка, второй вариант, который не выдает ошибку при больших массивов
+{
+    int mid, count;
+    int f = left, l = right;
+    mid = arr[(f + l) / 2]; //вычисление опорного элемента
+    do
+    {
+        while (arr[f] < mid) f++;
+        while (arr[l] > mid) l--;
+        if (f <= l) //перестановка элементов
+        {
+            count = arr[f];
+            arr[f] = arr[l];
+            arr[l] = count;
+            f++;
+            l--;
+        }
+    } while (f < l);
+    if (left < l) Quicksort(arr, left, l);
+    if (f < right) Quicksort(arr, f, right);
+}
+
 
 void ShellSortDel(int arr[], int arr_len) {//сортировка Шелла с шагом деления на 2
     for (int gap = arr_len / 2; gap > 0; gap /= 2)
@@ -330,7 +355,7 @@ void heapify(int arr[], int n, int root) {// функция heapify для на�
     }
 }
 
-void HeapSort(int arr[], int arr_len) {//сортировка пирамидальная
+void HeapSort(int arr[], int arr_len) {
     // создать кучу
     for (int i = arr_len / 2 - 1; i >= 0; i--)
         heapify(arr, arr_len, i);
@@ -362,7 +387,7 @@ int partition(int* arr, int start, int end) {
     return index;
 }
 
-void IntroSort(int* array, int arr_len) {//функция интросорт
+void IntroSort(int* array, int arr_len) {
     int partSize = partition(array, 0, arr_len - 1);
     if (partSize < 16) {
         InsertSort(array, 0, arr_len - 1);
